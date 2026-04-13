@@ -8,56 +8,64 @@ import org.junit.jupiter.api.Test;
 import java.time.Instant;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class MetricsFormerTest {
 
     private final MetricsFormer metricsFormer = new MetricsFormer();
 
     @Test
-    void shouldCreateOnlyTotalMetricForInfo() {
-        NormalizedLogEvent event = NormalizedLogEvent.builder()
-                .serviceId("auth")
-                .level("INFO")
-                .timestamp(Instant.now())
-                .message("Info log")
-                .build();
+    void shouldAggregateMetricsForSingleService() {
+        List<NormalizedLogEvent> events = List.of(
+                NormalizedLogEvent.builder().serviceId("auth").level("INFO").timestamp(Instant.now()).build(),
+                NormalizedLogEvent.builder().serviceId("auth").level("INFO").timestamp(Instant.now()).build(),
+                NormalizedLogEvent.builder().serviceId("auth").level("WARN").timestamp(Instant.now()).build(),
+                NormalizedLogEvent.builder().serviceId("auth").level("ERROR").timestamp(Instant.now()).build(),
+                NormalizedLogEvent.builder().serviceId("auth").level("DEBUG").timestamp(Instant.now()).build()
+        );
 
-        List<LogMetricEvent> metrics = metricsFormer.formMetrics(event);
+        Instant start = Instant.now().minusSeconds(60);
+        Instant end = Instant.now();
 
-        assertEquals(1, metrics.size());
-        assertEquals("logs_total", metrics.get(0).getMetricName());
+        List<LogMetricEvent> metrics = metricsFormer.formMetrics(events, start, end);
+
+        assertEquals(5, findValue(metrics, "auth", "logs_total"));
+        assertEquals(2, findValue(metrics, "auth", "logs_info_total"));
+        assertEquals(1, findValue(metrics, "auth", "logs_warn_total"));
+        assertEquals(1, findValue(metrics, "auth", "logs_error_total"));
+        assertEquals(1, findValue(metrics, "auth", "logs_debug_total"));
     }
 
     @Test
-    void shouldCreateWarnMetrics() {
-        NormalizedLogEvent event = NormalizedLogEvent.builder()
-                .serviceId("billing")
-                .level("WARN")
-                .timestamp(Instant.now())
-                .message("Warn log")
-                .build();
+    void shouldAggregateMetricsPerService() {
+        List<NormalizedLogEvent> events = List.of(
+                NormalizedLogEvent.builder().serviceId("auth").level("INFO").timestamp(Instant.now()).build(),
+                NormalizedLogEvent.builder().serviceId("auth").level("WARN").timestamp(Instant.now()).build(),
+                NormalizedLogEvent.builder().serviceId("billing").level("ERROR").timestamp(Instant.now()).build(),
+                NormalizedLogEvent.builder().serviceId("billing").level("ERROR").timestamp(Instant.now()).build()
+        );
 
-        List<LogMetricEvent> metrics = metricsFormer.formMetrics(event);
+        Instant start = Instant.now().minusSeconds(60);
+        Instant end = Instant.now();
 
-        assertEquals(2, metrics.size());
-        assertEquals("logs_total", metrics.get(0).getMetricName());
-        assertEquals("logs_warn_total", metrics.get(1).getMetricName());
+        List<LogMetricEvent> metrics = metricsFormer.formMetrics(events, start, end);
+
+        assertEquals(2, findValue(metrics, "auth", "logs_total"));
+        assertEquals(1, findValue(metrics, "auth", "logs_info_total"));
+        assertEquals(1, findValue(metrics, "auth", "logs_warn_total"));
+        assertEquals(0, findValue(metrics, "auth", "logs_error_total"));
+
+        assertEquals(2, findValue(metrics, "billing", "logs_total"));
+        assertEquals(2, findValue(metrics, "billing", "logs_error_total"));
+        assertEquals(0, findValue(metrics, "billing", "logs_warn_total"));
     }
 
-    @Test
-    void shouldCreateErrorMetrics() {
-        NormalizedLogEvent event = NormalizedLogEvent.builder()
-                .serviceId("billing")
-                .level("ERROR")
-                .timestamp(Instant.now())
-                .message("Error log")
-                .build();
-
-        List<LogMetricEvent> metrics = metricsFormer.formMetrics(event);
-
-        assertEquals(2, metrics.size());
-        assertEquals("logs_total", metrics.get(0).getMetricName());
-        assertEquals("logs_error_total", metrics.get(1).getMetricName());
+    private long findValue(List<LogMetricEvent> metrics, String serviceId, String metricName) {
+        return metrics.stream()
+                .filter(m -> serviceId.equals(m.getServiceId()))
+                .filter(m -> metricName.equals(m.getMetricName()))
+                .map(LogMetricEvent::getValue)
+                .findFirst()
+                .orElse(0L);
     }
 }

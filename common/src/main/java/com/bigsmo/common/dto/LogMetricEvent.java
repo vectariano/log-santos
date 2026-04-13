@@ -14,7 +14,8 @@ import java.time.Instant;
 public class LogMetricEvent {
     private String metricName;
     private String serviceId;
-    private String level;
     private long value;
-    private Instant timestamp;
+    private Instant windowStart;
+    private Instant windowEnd;
+    private Instant createdAt;
 }
