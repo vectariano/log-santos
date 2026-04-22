@@ -10,46 +10,27 @@ services:
       - "8080:8080"
     environment:
       - SPRING_PROFILES_ACTIVE=docker
-<<<<<<< HEAD
-      - KAFKA_BOOTSTRAP_SERVERS=kafka-ls:9092
-    restart: unless-stopped
-=======
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
->>>>>>> d05a82d5b20a359649585c0fd1f9c9eeda6cd538
     networks:
       - log-santos-net
     depends_on:
       - kafka
 
   service:
-<<<<<<< HEAD
-=======
     container_name: service-ls
->>>>>>> d05a82d5b20a359649585c0fd1f9c9eeda6cd538
     build:
       context: .
       dockerfile: Dockerfile
       args:
         MODULE: service
-<<<<<<< HEAD
-    container_name: service-ls
-    environment:
-      - SPRING_PROFILES_ACTIVE=docker
-      - KAFKA_BOOTSTRAP_SERVERS=kafka-ls:9092
-    restart: unless-stopped
-=======
     environment:
       - SPRING_PROFILES_ACTIVE=docker
       - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
->>>>>>> d05a82d5b20a359649585c0fd1f9c9eeda6cd538
     networks:
       - log-santos-net
     depends_on:
       - kafka
-<<<<<<< HEAD
-=======
       - clickhouse
->>>>>>> d05a82d5b20a359649585c0fd1f9c9eeda6cd538
 
   kafka:
     container_name: kafka-ls
@@ -71,8 +52,22 @@ services:
     volumes:
       - kafka_data:/var/lib/kafka/data
 
-<<<<<<< HEAD
-  grafana:
+  clickhouse:
+    container_name: clickhouse-ls
+    image: clickhouse/clickhouse-server:latest
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_USER: default
+      CLICKHOUSE_PASSWORD: 123
+      CLICKHOUSE_DB: logsantos
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+    networks:
+      - log-santos-net
+
+ grafana:
     image: grafana/grafana:11.0.0
     container_name: log-santos-grafana
     restart: unless-stopped
@@ -89,30 +84,14 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - kafka
-=======
-  clickhouse:
-    container_name: clickhouse-ls
-    image: clickhouse/clickhouse-server:latest
-    ports:
-      - "8123:8123"
-      - "9000:9000"
-    environment:
-      CLICKHOUSE_USER: default
-      CLICKHOUSE_PASSWORD: 123
-      CLICKHOUSE_DB: logsantos
-    volumes:
-      - clickhouse_data:/var/lib/clickhouse
->>>>>>> d05a82d5b20a359649585c0fd1f9c9eeda6cd538
+      - clickhouse
     networks:
       - log-santos-net
 
 volumes:
   kafka_data:
-<<<<<<< HEAD
-  grafana_data:
-=======
   clickhouse_data:
->>>>>>> d05a82d5b20a359649585c0fd1f9c9eeda6cd538
+  grafana_data:
 
 networks:
   log-santos-net:
