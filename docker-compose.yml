@@ -1,5 +1,40 @@
 services:
+  controller:
+    container_name: controller-ls
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: controller
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-ls:9092
+    restart: unless-stopped
+    networks:
+      - log-santos-net
+    depends_on:
+      - kafka
+
+  service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        MODULE: service
+    container_name: service-ls
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-ls:9092
+    restart: unless-stopped
+    networks:
+      - log-santos-net
+    depends_on:
+      - kafka
+
   kafka:
+    container_name: kafka-ls
     image: apache/kafka:3.7.0
     ports:
       - "9092:9092"
@@ -7,13 +42,15 @@ services:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
-      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
       KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
       KAFKA_AUTO_CREATE_TOPICS_ENABLE: true
+    networks:
+      - log-santos-net
     volumes:
       - kafka_data:/var/lib/kafka/data
 
@@ -34,7 +71,13 @@ services:
       - ./grafana/dashboards:/var/lib/grafana/dashboards
     depends_on:
       - kafka
+    networks:
+      - log-santos-net
 
 volumes:
   kafka_data:
   grafana_data:
+
+networks:
+  log-santos-net:
+    driver: bridge
