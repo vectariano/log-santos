@@ -13,6 +13,6 @@ public class RawLogKafkaPublisher implements KafkaPublisher<String> {
 
     @Override
     public void publish(String data) {
-        kafkaTemplate.send("raw-log", data);
+        kafkaTemplate.send("raw-logs-topic", data);
     }
 }

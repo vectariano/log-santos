@@ -25,8 +25,8 @@ public class LogIngestServiceImpl implements LogIngestService {
                 accepted++;
             } catch (Exception e) {
                 dropped++;
-                log.debug("Uhhh something broke, the exception is {}", e.getMessage());
-                log.debug("The string is \"{}\"", logString);
+                log.error("Uhhh something broke, the exception is {}", e.getMessage());
+                log.error("The string is \"{}\"", logString);
             }
         }
         return new IngestResult(accepted, dropped);
