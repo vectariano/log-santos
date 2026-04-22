@@ -68,7 +68,7 @@ services:
     networks:
       - log-santos-net
 
- grafana:
+  grafana:
     image: grafana/grafana:11.0.0
     container_name: log-santos-grafana
     restart: unless-stopped
