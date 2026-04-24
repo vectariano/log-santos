@@ -4,11 +4,11 @@ datasources:
   - name: Elasticsearch-Logs
     type: elasticsearch
     uid: elasticsearch
-    url: http://elasticsearch:9200
+    url: http://elasticsearch-ls:9200
     access: proxy
     isDefault: false
     jsonData:
-      index: "logs-*"
+      index: "log_event"
       timeField: "@timestamp"
       esVersion: "8.19.6"
       logMessageField: message
@@ -18,13 +18,13 @@ datasources:
   - name: ClickHouse-Metrics
     type: grafana-clickhouse-datasource
     uid: clickhouse
-    url: http://clickhouse:8123
+    url: http://clickhouse-ls:9000
     access: proxy
     jsonData:
-      defaultDatabase: logger
-      port: 8123
-      server: clickhouse
-      username: grafana
-      password: grafana_pass
+      defaultDatabase: logsantos
+      port: 9000
+      server: clickhouse-ls
+      username: default
+      password: 123
       tlsSkipVerify: true
     editable: true

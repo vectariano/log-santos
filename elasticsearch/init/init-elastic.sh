@@ -1,12 +1,12 @@
 echo "Waiting for Elasticsearch to be ready..."
-until curl -s http://elasticsearch:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
+until curl -s http://elasticsearch-ls:9200/_cluster/health | grep -q '"status":"green"\|"status":"yellow"'; do
     echo "Elasticsearch is unavailable - sleeping"
     sleep 5
 done
 
 echo "Elasticsearch is up!"
 
-if curl -s -o /dev/null -w "%{http_code}" http://elasticsearch:9200/log_event | grep -q "200"; then
+if curl -s -o /dev/null -w "%{http_code}" http://elasticsearch-ls:9200/log_event | grep -q "200"; then
     echo "Index 'log_event' already exists. Skipping creation."
 else
     echo "Creating index 'log_event'..."

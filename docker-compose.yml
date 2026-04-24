@@ -2,7 +2,7 @@ services:
   controller:
     container_name: controller-ls
     build:
-      context: .
+      context: LogSantos
       dockerfile: Dockerfile
       args:
         MODULE: controller
@@ -19,7 +19,7 @@ services:
   service:
     container_name: service-ls
     build:
-      context: .
+      context: LogSantos
       dockerfile: Dockerfile
       args:
         MODULE: service
@@ -90,9 +90,22 @@ services:
       retries: 5
       start_period: 30s
 
+  elasticsearch-init:
+      image: curlimages/curl:latest
+      container_name: elasticsearch-init
+      volumes:
+        - ./elasticsearch/init:/init
+      # We run the script using /bin/sh
+      entrypoint: ["/bin/sh", "/init/init-elastic.sh"]
+      depends_on:
+        elasticsearch:
+          condition: service_healthy
+      networks:
+        - log-santos-net
+
   grafana:
     image: grafana/grafana:11.0.0
-    container_name: log-santos-grafana
+    container_name: grafana-ls
     restart: unless-stopped
     ports:
       - "3000:3000"
@@ -119,4 +132,5 @@ volumes:
 
 networks:
   log-santos-net:
+    name: net-ls
     driver: bridge
