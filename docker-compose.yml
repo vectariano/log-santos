@@ -103,6 +103,19 @@ services:
       networks:
         - log-santos-net
 
+  logstash:
+      image: docker.elastic.co/logstash/logstash:8.14.0
+      container_name: logstash-ls
+      volumes:
+        - ./logstash/pipeline:/usr/share/logstash/pipeline
+      depends_on:
+        - elasticsearch
+        - kafka
+      environment:
+        LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+      networks:
+        - log-santos-net
+
   grafana:
     image: grafana/grafana:11.0.0
     container_name: grafana-ls
