@@ -20,11 +20,12 @@ datasources:
     uid: clickhouse
     url: http://clickhouse-ls:9000
     access: proxy
+    editable: true
     jsonData:
       defaultDatabase: logsantos
       port: 9000
       server: clickhouse-ls
       username: default
-      password: 123
       tlsSkipVerify: true
-    editable: true
+    secureJsonData:
+      password: "123"

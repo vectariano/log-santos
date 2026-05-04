@@ -96,7 +96,7 @@
     "RunOnceActivity.typescript.service.memoryLimit.init": "true",
     "Spring Boot.ControllerApplication.executor": "Run",
     "Spring Boot.ServiceApplication.executor": "Run",
-    "git-widget-placeholder": "recovery-branch",
+    "git-widget-placeholder": "main",
     "kotlin-language-version-configured": "true",
     "last_opened_file_path": "/home/nikitza/IdeaProjects/logsas/LogSantos",
     "nodejs_package_manager_path": "npm",
@@ -217,7 +217,7 @@
       <workItem from="1777025430593" duration="178000" />
       <workItem from="1777025636033" duration="148000" />
       <workItem from="1777025809795" duration="75000" />
-      <workItem from="1777030651841" duration="2080000" />
+      <workItem from="1777030651841" duration="2738000" />
     </task>
     <task id="LOCAL-00001" summary="the thing">
       <option name="closed" value="true" />
