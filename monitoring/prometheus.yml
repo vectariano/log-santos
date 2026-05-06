@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 5s
+  evaluation_interval: 5s
+
+scrape_configs:
+  - job_name: "prometheus"
+    static_configs:
+      - targets: ["prometheus-ls:9090"]
+
+  - job_name: "log-santos-controller"
+    metrics_path: "/actuator/prometheus"
+    static_configs:
+      - targets: ["controller-ls:8080"]
+
+  - job_name: "cadvisor"
+    static_configs:
+      - targets: ["cadvisor-ls:8080"]
+
+  - job_name: "kafka"
+    static_configs:
+      - targets: ["kafka-exporter-ls:9308"]
